@@ -8,12 +8,14 @@ Details, logs, datasets, and other resources related to our paper presented at t
 
 Please note that the content of this specific folder is frozen to preserve the information exactly as it was at the time of the paper's publication. However, you may find an updated version of this information in the main repository, reflecting our ongoing work and improvements in this area.
 
+
+## To Do:
+- [ ] benchmark website for models
+- [ ] rip current detection 
+- [ ] rip current notification system @ the Black Sea
+
+
 ## Contributing
 
 We welcome contributions! If you have any suggestions, issues, or improvements, feel free to open an issue or submit a pull request.
 
-
-## To Do:
-- [ ] benchmark website for model
-- [ ] rip current detection 
-- [ ] rip current notification system @ the Black Sea
