@@ -1,0 +1,6 @@
+path: /home/irikos/Work/datasets/rip_currents/YOLO-Rip-seg/train/images/
+train: /home/irikos/Work/datasets/rip_currents/YOLO-Rip-seg/train/10fold/training_k7.txt
+val: /home/irikos/Work/datasets/rip_currents/YOLO-Rip-seg/train/10fold/validation_k7.txt
+test: 
+nc: 1
+names: ['rip-seg']
