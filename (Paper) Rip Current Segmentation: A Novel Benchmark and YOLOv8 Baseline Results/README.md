@@ -1,6 +1,6 @@
 # Rip Currents Segmentation: A Novel Benchmark and YOLOv8 Results (CVPR NTIRE Paper)
 
-In this folder you can find the information as was used for the results in the paper. As this is a continuous work, these results are most likely not the latest version on the subject. Feel free to check the latest updates in the repository. If anything is not clear - or any link is not working - feel free to email me.
+In this folder you can find the information as was used for the results in the paper. As this is a continuous work, these results are most likely not the latest version on the subject. Feel free to check the latest updates in [the main repository](https://github.com/Irikos/rip_currents/). If anything is not clear - or any link is not working - feel free to email me.
 
 
 * [Dataset (training images, with rips)](https://app.roboflow.com/rip-currents-unibuc/rip-current-segmentation/1)
@@ -13,7 +13,7 @@ Keep in mind that when downloading from Roboflow, all the file names have a stri
 
 This paper folder is structured as follows:
 
-* "/.." -> root repository, containing latest information on the subject
+* "[..](https://github.com/Irikos/rip_currents/)" -> root repository, containing latest information on the subject
 * "10-fold splits" -> the actual splits for reproducible results
 * "training logs" -> logs the training for all the model sizes on all 10 folds (can also be seen on ClearML)
  
