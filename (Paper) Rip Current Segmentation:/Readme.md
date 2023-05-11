@@ -2,6 +2,7 @@
 
 In this folder you can find the information as was used for the results in the paper. As this is a continuous work, these results are most likely not the latest version on the subject. Feel free to check the latest updates in the repository. If anything is not clear - or any link is not working - feel free to email me.
 
+
 * [Dataset (training images, with rips)](https://app.roboflow.com/rip-currents-unibuc/rip-current-segmentation/1)
 * [Dataset (training images, without rips)](https://app.roboflow.com/rip-currents-unibuc/rip-current-segmentation/1)
 * [Dataset (testing)](https://app.roboflow.com/rip-currents-unibuc/rip-current-segmentation-videos/2)
@@ -16,3 +17,7 @@ This paper folder is structured as follows:
 * "10-fold splits" -> the actual splits for reproducible results
 * "training logs" -> logs the training for all the model sizes on all 10 folds (can also be seen on ClearML)
  
+
+
+### Acknowledgments
+This work builts on the tools and work on others before. Big thanks to [De Silva et al.](https://www.sciencedirect.com/science/article/abs/pii/S0378383921000193), [Zhu et al.](https://www.frontiersin.org/articles/10.3389/fmars.2022.930478/full) and all the cited authors for their work on the subject and the initial data collection and [Jocher et al.](https://github.com/ultralytics/ultralytics) for their YOLOv8 development (among other).
