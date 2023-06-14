@@ -1,7 +1,6 @@
-# Rip Currents Segmentation: A Novel Benchmark and YOLOv8 Results (CVPR NTIRE Paper)
+# Rip Currents Segmentation: A Novel Benchmark and YOLOv8 Results [(CVPR2023 NTIRE Paper)]((https://openaccess.thecvf.com/content/CVPR2023W/NTIRE/html/Dumitriu_Rip_Current_Segmentation_A_Novel_Benchmark_and_YOLOv8_Baseline_Results_CVPRW_2023_paper.html))
 
 In this folder you can find the information as was used for the results in the paper. As this is a continuous work, these results are most likely not the latest version on the subject. Feel free to check the latest updates in [the main repository](https://github.com/Irikos/rip_currents/). If anything is not clear - or any link is not working - feel free to email me.
-
 
 * [Dataset (training images, with rips)](https://app.roboflow.com/rip-currents-unibuc/rip-current-segmentation/1)
 * [Dataset (training images, without rips)](https://app.roboflow.com/rip-currents-unibuc/rip-current-segmentation/1)
