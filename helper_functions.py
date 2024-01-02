@@ -1,3 +1,7 @@
+### All the helper functions I have used when working with the rip currents datasets and models. ###
+### I will try to create a separate file in each paper's folder with the ones that you need when importing the data. No promises, though, and you can find them all here if needed ###
+
+
 print("Hello, world!")
 print("Actual file with the helper functions that can be imported.")
 
