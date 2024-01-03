@@ -528,3 +528,18 @@ def rename_files(path, extension):
         else:
             print("File " + filename + " does not contain '_jpg.rf'")
     print("Renamed " + str(counter) + " files")
+
+
+# change all file extensions in a folder from jpg to txt.
+# use in case you changed the file extension by mistake
+# Usage: change_file_extension("path/to/folder", ".jpg", ".txt")
+
+def change_file_extension(path, old_extension, new_extension):
+    counter = 0
+    for filename in glob.glob(os.path.join(path, '*.*')):
+        if old_extension in filename:
+            os.rename(filename, filename.split(old_extension)[0] + new_extension)
+            counter += 1
+        else:
+            print("File " + filename + " does not contain " + old_extension)
+    print("Changed " + str(counter) + " files")
