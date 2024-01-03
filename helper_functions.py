@@ -14,6 +14,7 @@ import numpy as np
 from sklearn.model_selection import KFold
 import time
 import cv2 as cv
+import glob
 
 print("Done importing libraries.")
 
@@ -509,3 +510,21 @@ def kfold_split_yolo_dataset_yml(files_destination, dataset_path, annotations_pa
         print('{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60))
         print("Ended fold no: " + str(i) + "\n")
         
+
+
+# parse all files in a folder and remove everything after the "_jpg.rf" part in the file name 
+# (check if it exists first) and add its extension at the end
+# Usage: rename_files("path/to/folder", ".txt")
+# apply for both labels ('.txt') and images ('.jpg')
+
+# Useful when for files downloaded from Roboflow, which append the extension at the end of the file name
+
+def rename_files(path, extension):
+    counter = 0
+    for filename in glob.glob(os.path.join(path, '*.*')):
+        if "_jpg.rf" in filename:
+            os.rename(filename, filename.split("_jpg.rf")[0] + extension)
+            counter += 1
+        else:
+            print("File " + filename + " does not contain '_jpg.rf'")
+    print("Renamed " + str(counter) + " files")
