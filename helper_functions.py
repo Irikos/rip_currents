@@ -13,7 +13,7 @@ import PIL
 import numpy as np
 from sklearn.model_selection import KFold
 import time
-import cv2 as cv
+import cv2
 import glob
 
 print("Done importing libraries.")
@@ -352,7 +352,7 @@ def read_images(path, format=".png", sorted=False):
     images_path = read_images_path(path, format, sorted)
     images = []
     for img_path in images_path:
-        image = cv.imread(path + img_path)
+        image = cv2.imread(path + img_path)
         images.append(image)
     return images
 
@@ -361,7 +361,7 @@ def read_images(path, format=".png", sorted=False):
     images_path = read_images_path(path, format, sorted)
     images = []
     for img_path in images_path:
-        image = cv.imread(path + img_path)
+        image = cv2.imread(path + img_path)
         images.append((image, img_path.split('.')[0]))
     return images
 
@@ -379,11 +379,11 @@ def frames_to_video(
     # h, w, _ = frames[0].size # assumes all frames have the same shape
     # here we have the extensions and the fourcc for each of it
     video_extension_and_fourcc_dict = {
-        '.avi': cv.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+        '.avi': cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
         '.mp4': 0x7634706d
     }   
     print(destination_folder + video_name)
-    video_output = cv.VideoWriter(
+    video_output = cv2.VideoWriter(
         # destination_folder + video_name, 
         video_name,
         video_extension_and_fourcc_dict[video_format],
@@ -409,11 +409,11 @@ def frames_to_video2(
     # h, w, _ = frames[0].size # assumes all frames have the same shape
     # here we have the extensions and the fourcc for each of it
     video_extension_and_fourcc_dict = {
-        '.avi': cv.VideoWriter_fourcc('M', 'J', 'P', 'G'),
+        '.avi': cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
         '.mp4': 0x7634706d
     }   
     print(destination_folder + video_name)
-    video_output = cv.VideoWriter(
+    video_output = cv2.VideoWriter(
         # destination_folder + video_name, 
         video_name,
         video_extension_and_fourcc_dict[video_format],
@@ -429,7 +429,7 @@ def frames_to_video2(
 ### EXTRACT FRAMES FROM VIDEO ###
 def video_to_frames(video_path):
     frames = []
-    cap = cv.VideoCapture(video_path)
+    cap = cv2.VideoCapture(video_path)
 
     if cap.isOpened() == False:
         print("Error opening video stream or file")
