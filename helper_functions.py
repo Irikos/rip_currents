@@ -512,14 +512,24 @@ def kfold_split_yolo_dataset_yml(files_destination, dataset_path, annotations_pa
         
 
 
-# parse all files in a folder and remove everything after the "_jpg.rf" part in the file name 
-# (check if it exists first) and add its extension at the end
-# Usage: rename_files("path/to/folder", ".txt")
-# apply for both labels ('.txt') and images ('.jpg')
+def rename_files_from_roboflow(path, extension):
+    """
+    Renames files in a given directory by removing a specific pattern and appending a new extension.
 
-# Useful when for files downloaded from Roboflow, which append the extension at the end of the file name
+    This function is particularly useful for files downloaded from Roboflow, where the original 
+    extension is appended at the end of the filename. It searches for files containing the pattern 
+    '_jpg.rf' and replaces it with the specified extension.
 
-def rename_files(path, extension):
+    Parameters:
+        path (str): Directory containing the files to be renamed.
+        extension (str): New extension to be appended after removing the pattern.
+
+    The function reports the number of files renamed and notifies about files not matching the pattern.
+
+    Usage:
+        rename_files_from_roboflow("path/to/folder", ".jpg")  # For images
+        rename_files_from_roboflow("path/to/folder", ".txt")  # For label files
+    """ 
     counter = 0
     for filename in glob.glob(os.path.join(path, '*.*')):
         if "_jpg.rf" in filename:
@@ -530,11 +540,13 @@ def rename_files(path, extension):
     print("Renamed " + str(counter) + " files")
 
 
-# change all file extensions in a folder from jpg to txt.
-# use in case you changed the file extension by mistake
-# Usage: change_file_extension("path/to/folder", ".jpg", ".txt")
 
 def change_file_extension(path, old_extension, new_extension):
+    """" 
+    Change all file extensions in a folder from jpg to txt.
+    Use in case you changed the file extension by mistake
+    Usage: change_file_extension("path/to/folder", ".jpg", ".txt")
+    """
     counter = 0
     for filename in glob.glob(os.path.join(path, '*.*')):
         if old_extension in filename:
@@ -543,3 +555,60 @@ def change_file_extension(path, old_extension, new_extension):
         else:
             print("File " + filename + " does not contain " + old_extension)
     print("Changed " + str(counter) + " files")
+
+
+def draw_annotations(image_path, label_path, output_path, alpha=0.4, filled=False, border_thickness=2):
+    """
+    Draws bounding boxes and polygons on an image based on YOLO format annotations.
+
+    Parameters:
+        image_path (str): Path to the input image.
+        label_path (str): Path to the label file with YOLO format annotations.
+        output_path (str): Path for saving the output image.
+        alpha (float): Transparency factor for filled shapes (default 0.4). Effective only if 'filled' is True.
+        filled (bool): If True, draws filled shapes with transparency. If False, draws only the borders.
+        border_thickness (int): Thickness of the borders (default 2).
+
+    Annotations in the label file should be in YOLO format:
+    - For bounding boxes: <object_class> <x_center> <y_center> <width> <height>
+    - For polygons: <object_class> <x1> <y1> ... <xn> <yn>
+
+    Note: Object class '0' is for bounding boxes, '1' is for polygons. Coordinates are normalized to the image dimensions.
+    """
+    image = cv2.imread(image_path)
+    height, width, channels = image.shape
+    overlay = image.copy()
+
+    with open(label_path, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.split(' ')
+            object_class = int(line[0])
+
+            if object_class == 0:  # Bounding box
+                x_center = float(line[1]) * width
+                y_center = float(line[2]) * height
+                w = float(line[3]) * width
+                h = float(line[4]) * height
+                x1 = int(x_center - w / 2)
+                y1 = int(y_center - h / 2)
+                x2 = int(x_center + w / 2)
+                y2 = int(y_center + h / 2)
+
+                if filled:
+                    cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 255, 0), thickness=cv2.FILLED)
+                cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), thickness=border_thickness)
+
+            elif object_class == 1:  # Polygon
+                points = []
+                for i in range(1, len(line), 2):
+                    points.append((int(float(line[i]) * width), int(float(line[i + 1]) * height)))
+                points = np.array([points], dtype=np.int32)
+
+                if filled:
+                    cv2.fillPoly(overlay, [points], (0, 0, 255))
+                cv2.polylines(image, [points], True, (0, 0, 255), thickness=border_thickness)
+
+    if filled:
+        cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
+    cv2.imwrite(output_path, image)
