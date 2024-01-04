@@ -16,6 +16,10 @@ import time
 import cv2
 import glob
 import shutil
+import os
+import cv2
+import os
+import cv2
 
 print("Done importing libraries.")
 
@@ -558,7 +562,7 @@ def change_file_extension(path, old_extension, new_extension):
     print("Changed " + str(counter) + " files")
 
 
-def draw_annotations(image_path, label_path, output_path, alpha=0.4, filled=False, border_thickness=2):
+def draw_annotations(image_path, label_path, output_path='', alpha=0.4, filled=False, border_thickness=2):
     """
     Draws bounding boxes and polygons on an image based on YOLO format annotations.
 
@@ -612,8 +616,68 @@ def draw_annotations(image_path, label_path, output_path, alpha=0.4, filled=Fals
 
     if filled:
         cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
-    cv2.imwrite(output_path, image)
+    if output_path != '':
+        cv2.imwrite(output_path, image)
+    else:
+        return image
 
+def draw_annotations_on_image(image, label_path, output_path='', alpha=0.4, filled=False, border_thickness=2):
+    """
+    Draws bounding boxes and polygons on an image based on YOLO format annotations.
+
+    Parameters:
+        image_path (str): Path to the input image.
+        label_path (str): Path to the label file with YOLO format annotations.
+        output_path (str): Path for saving the output image.
+        alpha (float): Transparency factor for filled shapes (default 0.4). Effective only if 'filled' is True.
+        filled (bool): If True, draws filled shapes with transparency. If False, draws only the borders.
+        border_thickness (int): Thickness of the borders (default 2).
+
+    Annotations in the label file should be in YOLO format:
+    - For bounding boxes: <object_class> <x_center> <y_center> <width> <height>
+    - For polygons: <object_class> <x1> <y1> ... <xn> <yn>
+
+    Note: Object class '0' is for bounding boxes, '1' is for polygons. Coordinates are normalized to the image dimensions.
+    """
+    height, width, channels = image.shape
+    overlay = image.copy()
+
+    with open(label_path, 'r') as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.split(' ')
+            object_class = int(line[0])
+
+            if object_class == 0:  # Bounding box
+                x_center = float(line[1]) * width
+                y_center = float(line[2]) * height
+                w = float(line[3]) * width
+                h = float(line[4]) * height
+                x1 = int(x_center - w / 2)
+                y1 = int(y_center - h / 2)
+                x2 = int(x_center + w / 2)
+                y2 = int(y_center + h / 2)
+
+                if filled:
+                    cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 255, 0), thickness=cv2.FILLED)
+                cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), thickness=border_thickness)
+
+            elif object_class == 1:  # Polygon
+                points = []
+                for i in range(1, len(line), 2):
+                    points.append((int(float(line[i]) * width), int(float(line[i + 1]) * height)))
+                points = np.array([points], dtype=np.int32)
+
+                if filled:
+                    cv2.fillPoly(overlay, [points], (0, 0, 255))
+                cv2.polylines(image, [points], True, (0, 0, 255), thickness=border_thickness)
+
+    if filled:
+        cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
+    if output_path != '':
+        cv2.imwrite(output_path, image)
+    else:
+        return image
 
 def create_subfolders_with_annotations(videos_folder, annotations_folder, destination_folder):
     """
@@ -676,3 +740,86 @@ def get_num_frames(video_path):
     property_id = int(cv2.CAP_PROP_FRAME_COUNT) 
     length = int(cv2.VideoCapture.get(cap, property_id))
     return length
+
+
+def process_videos_to_frames(videos_folder, destination_folder):
+    # Get the list of video files starting with "DJI_"
+    video_files = [file for file in os.listdir(videos_folder) if file.startswith("DJI_")]
+
+    # Iterate over each video file
+    for video_file in video_files:
+        # Create a subfolder with the video name in the destination folder
+        video_name = os.path.splitext(video_file)[0]
+        subfolder_path = os.path.join(destination_folder, video_name)
+        os.makedirs(subfolder_path, exist_ok=True)
+
+        # Read the video file
+        video_path = os.path.join(videos_folder, video_file)
+
+        frames = video_to_frames(video_path)
+        
+        # Get the total number of frames in the video
+        num_frames = len(frames)
+
+        # Iterate over each frame in the video
+        print(f"Processing {video_file}...")
+        for frame_index in range(len(frames)):
+            # Save the processed frame in the subfolder
+            frame_path = os.path.join(subfolder_path, f"{video_name}_{frame_index}.jpg")
+            cv2.imwrite(frame_path, frames[frame_index])
+
+
+
+    
+def process_videos(videos_folder, annotations_folder, destination_folder):
+    # Get the list of video files starting with "DJI_"
+    video_files = [file for file in os.listdir(videos_folder) if file.startswith("DJI_")]
+
+    # Iterate over each video file
+    for video_file in video_files:
+        print(f"Processing {video_file}...")
+        # Create a subfolder with the video name in the destination folder
+        video_name = os.path.splitext(video_file)[0]
+
+        # Read the video file   
+        video_path = os.path.join(videos_folder, video_file)
+        cap = cv2.VideoCapture(video_path)
+
+        # Get the video properties
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        # Create a VideoWriter object to save the processed video
+        output_path = os.path.join(destination_folder, f"{video_name}_processed.mp4")
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        out = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
+
+        # Get the list of annotation files for the current video
+        annotation_folder_path = os.path.join(annotations_folder, video_name)
+        annotation_files = os.listdir(annotation_folder_path)
+
+        # Iterate over each frame in the video
+        frame_index = 0
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+            # Get the annotation file for the current frame
+            annotation_file = f"{video_name}-{frame_index}.txt"
+            annotation_file_path = os.path.join(annotation_folder_path, annotation_file)
+
+            # Apply the function to draw bounding boxes on the frame
+            processed_frame = draw_annotations_on_image(frame, annotation_file_path, alpha=0.4, filled=False, border_thickness=2)
+
+            # Write the processed frame to the output video
+            out.write(processed_frame)
+
+            frame_index += 1
+
+        # Release the video capture and writer objects
+        cap.release()
+        out.release()
+
+        print(f"Processed {video_file} and saved to {output_path}")
