@@ -15,6 +15,7 @@ from sklearn.model_selection import KFold
 import time
 import cv2
 import glob
+import shutil
 
 print("Done importing libraries.")
 
@@ -612,3 +613,66 @@ def draw_annotations(image_path, label_path, output_path, alpha=0.4, filled=Fals
     if filled:
         cv2.addWeighted(overlay, alpha, image, 1 - alpha, 0, image)
     cv2.imwrite(output_path, image)
+
+
+def create_subfolders_with_annotations(videos_folder, annotations_folder, destination_folder):
+    """
+    Copies annotation files to corresponding video frame subfolders, ensuring each frame is annotated.
+
+    This function iterates over video files in a specified folder, creates subfolders for each video in a destination folder, and then copies annotation files from an annotations folder to these subfolders. Each video frame is assigned an annotation file based on a calculated distribution.
+
+    Parameters:
+        videos_folder (str): Directory containing video files.
+        annotations_folder (str): Directory containing annotation files.
+        destination_folder (str): Directory where subfolders for each video will be created.
+
+    For each video, the function:
+    - Creates a subfolder named after the video.
+    - Calculates the number of frames in the video.
+    - Determines the number of frames that each annotation file will cover.
+    - Copies each annotation file to the appropriate subfolder, renaming it to match the frame index.
+
+    The function assumes that video file names start with 'DJI_' and annotation files end with '.txt'. It ensures that all frames are annotated, even if the division of frames to annotation files is uneven.
+
+    Example:
+        create_subfolders_with_annotations('path/to/videos', 'path/to/annotations', 'path/to/destination')
+    """
+    # Get the list of video files starting with "DJI_"
+    video_files = [file for file in os.listdir(videos_folder) if file.startswith("DJI_")]
+
+    # Iterate over each video file
+    for video_file in video_files:
+        video_path = os.path.join(videos_folder, video_file)
+        video_name = os.path.splitext(video_file)[0]
+        subfolder_path = os.path.join(destination_folder, video_name)
+        os.makedirs(subfolder_path, exist_ok=True)
+
+        num_frames = get_num_frames(video_path)
+        video_annotations_folder = os.path.join(annotations_folder, video_name)
+        annotation_files = [file for file in os.listdir(video_annotations_folder) if file.endswith(".txt")]
+
+        # Calculate the number of frames each annotation file should cover
+        frames_per_annotation = num_frames // len(annotation_files)
+
+        # Iterate over each frame in the video
+        print(f"Processing {video_file}...")
+        for frame_index in range(num_frames):
+            # Determine the annotation file index based on the current frame index
+            annotated_frame_index = frame_index // frames_per_annotation
+
+            # Ensure the annotation index does not exceed the number of available files
+            annotated_frame_index = min(annotated_frame_index, len(annotation_files) - 1)
+
+            annotation_file = f"{video_name}_MP4-{annotated_frame_index}.txt"
+            annotation_source = os.path.join(video_annotations_folder, annotation_file)
+            annotation_destination = os.path.join(subfolder_path, f"{video_name}-{frame_index}.txt")
+            shutil.copy(annotation_source, annotation_destination)
+
+def get_num_frames(video_path):
+    # Your existing code to get the number of frames in a video
+    # return len(hf.video_to_frames(video_path))
+    
+    cap = cv2.VideoCapture(video_path)
+    property_id = int(cv2.CAP_PROP_FRAME_COUNT) 
+    length = int(cv2.VideoCapture.get(cap, property_id))
+    return length
