@@ -14,9 +14,15 @@ Keep in mind that when downloading from Roboflow, all the file names have a stri
 
 This paper folder is structured as follows:
 
-* "[..](https://github.com/Irikos/rip_currents/)" -> root repository, containing latest information on the subject
-* "10-fold splits" -> the actual splits for reproducible results
-* "training logs" -> logs the training for all the model sizes on all 10 folds (can also be seen on ClearML)
+* [..](https://github.com/Irikos/rip_currents/) -> root repository, containing latest information on the subject
+* [10-fold splits](10-fold%20splits/) -> the actual splits for reproducible results
+* [test data](test%20data) ->
+  * [labels (complete)](test%20data/labels%20(complete)/) -> the labels for all the frames of the test videos
+  * [video frames (sampled)](test%20data/video%20frames%20(sampled)/) -> sampled frames dependong in specific sampling rate. These are the frames that were manually annotated. The rest were calculated.
+* [training data](training%20data)
+  * [with_rips](training%20data/with_rips/) -> images and labels for each image, both with bounding box and polygon segmentation
+  * [with_rips](training%20data/without_rips/) -> images without rip currents
+* [training logs](training%20logs) -> logs the training for all the model sizes on all 10 folds (can also be seen on ClearML)
  
 
 
