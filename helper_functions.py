@@ -362,7 +362,7 @@ def read_images(path, format=".png", sorted=False):
     return images
 
 ### Return a list of tuples (image, image_name)
-def read_images(path, format=".png", sorted=False):
+def read_images2(path, format=".png", sorted=False):
     images_path = read_images_path(path, format, sorted)
     images = []
     for img_path in images_path:
@@ -387,10 +387,10 @@ def frames_to_video(
         '.avi': cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
         '.mp4': 0x7634706d
     }   
-    print(destination_folder + video_name)
+    destination = str(destination_folder + video_name)
+    print(destination)
     video_output = cv2.VideoWriter(
-        # destination_folder + video_name, 
-        video_name,
+        destination,
         video_extension_and_fourcc_dict[video_format],
         fps,
         (w, h),
@@ -417,10 +417,10 @@ def frames_to_video2(
         '.avi': cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'),
         '.mp4': 0x7634706d
     }   
-    print(destination_folder + video_name)
+    destination = str(destination_folder + video_name)
+    print(destination)
     video_output = cv2.VideoWriter(
-        # destination_folder + video_name, 
-        video_name,
+        destination, 
         video_extension_and_fourcc_dict[video_format],
         fps,
         (w, h),
@@ -808,6 +808,7 @@ def process_videos(videos_folder, annotations_folder, destination_folder):
 
             # Get the annotation file for the current frame
             annotation_file = f"{video_name}-{frame_index}.txt"
+            # annotation_file = f"{video_name}_MP4-{frame_index}.txt"
             annotation_file_path = os.path.join(annotation_folder_path, annotation_file)
 
             # Apply the function to draw bounding boxes on the frame
