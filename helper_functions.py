@@ -886,3 +886,12 @@ def rename_files_format_number(folder_path):
             new_name = re.sub(r'-(\d+)', lambda match: '-' + str(int(match.group(1))), old_name)
             os.rename(old_name, new_name)
 
+
+def rename_file_extensions_to_lowercase(folder_path):
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            file_name, file_extension = os.path.splitext(file)
+            new_file_name = file_name + file_extension.lower()
+            new_file_path = os.path.join(root, new_file_name)
+            os.rename(file_path, new_file_path)
