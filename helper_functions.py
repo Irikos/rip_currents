@@ -11,7 +11,7 @@ from PIL import Image, ImageDraw
 import os
 import PIL
 import numpy as np
-from sklearn.model_selection import KFold
+# from sklearn.model_selection import KFold
 import time
 import cv2
 import glob
@@ -20,6 +20,8 @@ import os
 import cv2
 import os
 import cv2
+import re
+
 
 print("Done importing libraries.")
 
@@ -701,8 +703,8 @@ def create_subfolders_with_annotations(videos_folder, annotations_folder, destin
     Example:
         create_subfolders_with_annotations('path/to/videos', 'path/to/annotations', 'path/to/destination')
     """
-    # Get the list of video files starting with "DJI_"
-    video_files = [file for file in os.listdir(videos_folder) if file.startswith("DJI_")]
+    # Get the list of video files starting with "DJI_" or "VIDEO-"
+    video_files = [file for file in os.listdir(videos_folder) if (file.startswith("DJI_") or file.startswith("VIDEO-"))]
 
     # Iterate over each video file
     for video_file in video_files:
@@ -713,7 +715,7 @@ def create_subfolders_with_annotations(videos_folder, annotations_folder, destin
 
         num_frames = get_num_frames(video_path)
         video_annotations_folder = os.path.join(annotations_folder, video_name)
-        annotation_files = [file for file in os.listdir(video_annotations_folder) if file.endswith(".txt")]
+        annotation_files = [file for file in os.listdir(video_annotations_folder) if file.upper().endswith(".TXT")]
 
         # Calculate the number of frames each annotation file should cover
         frames_per_annotation = num_frames // len(annotation_files)
@@ -824,3 +826,63 @@ def process_videos(videos_folder, annotations_folder, destination_folder):
         out.release()
 
         print(f"Processed {video_file} and saved to {output_path}")
+
+
+def move_files_by_prefix(folder_path):
+    # Get all files in the folder
+    files = os.listdir(folder_path)
+    
+    # Create a dictionary to store files by prefix
+    file_dict = {}
+    
+    # Iterate over each file
+    for file in files:
+        file = file.upper()  # Convert file name to uppercase
+        print(file)
+        if "_MP4" in file:
+            # Get the prefix of the file
+            prefix = file.split("_MP4")[0]
+            print(prefix)
+            print("\n")
+            # Check if the prefix already exists in the dictionary
+            if prefix in file_dict:
+                # If the prefix exists, append the file to the list of files with the same prefix
+                file_dict[prefix].append(file)
+            else:
+                # If the prefix does not exist, create a new list with the file
+                file_dict[prefix] = [file]
+        
+    # Iterate over the dictionary and move the files to the corresponding folders
+    for prefix, files in file_dict.items():
+        # Create a folder with the prefix name
+        folder_name = os.path.join(folder_path, prefix)
+        os.makedirs(folder_name, exist_ok=True)
+        
+        # Move each file to the corresponding folder
+        for file in files:
+            file_path = os.path.join(folder_path, file)
+            destination_path = os.path.join(folder_name, file)
+            shutil.move(file_path, destination_path)
+    
+    print("Files moved successfully.")
+
+    # Example usage
+    # folder_path = "/path/to/folder"
+    # move_files_by_prefix(folder_path)
+
+def rename_files_to_uppercase(folder_path):
+    for filename in os.listdir(folder_path):
+        if os.path.isfile(os.path.join(folder_path, filename)):
+            new_filename = filename.upper()
+            os.rename(os.path.join(folder_path, filename), os.path.join(folder_path, new_filename))
+    print("Done renaming files to uppercase.")
+
+
+
+def rename_files_format_number(folder_path):
+    for root, dirs, files in os.walk(folder_path):
+        for file in files:
+            old_name = os.path.join(root, file)
+            new_name = re.sub(r'-(\d+)', lambda match: '-' + str(int(match.group(1))), old_name)
+            os.rename(old_name, new_name)
+
