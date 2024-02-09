@@ -21,7 +21,7 @@ import cv2
 import os
 import cv2
 import re
-
+from os.path import exists
 
 print("Done importing libraries.")
 
@@ -623,6 +623,7 @@ def draw_annotations(image_path, label_path, output_path='', alpha=0.4, filled=F
     else:
         return image
 
+
 def draw_annotations_on_image(image, label_path, output_path='', alpha=0.4, filled=False, border_thickness=2):
     """
     Draws bounding boxes and polygons on an image based on YOLO format annotations.
@@ -651,14 +652,20 @@ def draw_annotations_on_image(image, label_path, output_path='', alpha=0.4, fill
             object_class = int(line[0])
 
             if object_class == 0:  # Bounding box
-                x_center = float(line[1]) * width
-                y_center = float(line[2]) * height
-                w = float(line[3]) * width
-                h = float(line[4]) * height
-                x1 = int(x_center - w / 2)
-                y1 = int(y_center - h / 2)
-                x2 = int(x_center + w / 2)
-                y2 = int(y_center + h / 2)
+                # YOLO to VOC format, but not used because Roboflow changed coords type if you also have instance segmentation
+                # x_center = float(line[1])
+                # y_center = float(line[2])
+                # w = float(line[3])
+                # h = float(line[4])
+                # x1 = int((x_center - (w / 2)) * width)
+                # y1 = int((y_center - (h / 2)) * height)
+                # x2 = int((x_center + (w / 2)) * width)
+                # y2 = int((y_center + (h / 2)) * height)
+                x1 = int(float(line[1]) * width)
+                y1 = int(float(line[2]) * height)
+                x2 = int(float(line[5]) * width)
+                y2 = int(float(line[6]) * height)
+
 
                 if filled:
                     cv2.rectangle(overlay, (x1, y1), (x2, y2), (0, 255, 0), thickness=cv2.FILLED)
@@ -715,10 +722,16 @@ def create_subfolders_with_annotations(videos_folder, annotations_folder, destin
 
         num_frames = get_num_frames(video_path)
         video_annotations_folder = os.path.join(annotations_folder, video_name)
+        if not os.path.exists(video_annotations_folder):
+            print(f"Annotation folder for {video_file} does not exist")
+            continue
         annotation_files = [file for file in os.listdir(video_annotations_folder) if file.upper().endswith(".TXT")]
 
+        total_initial_annotations = max([int(file.split("-")[-1].split(".")[0]) for file in annotation_files])
         # Calculate the number of frames each annotation file should cover
-        frames_per_annotation = num_frames // len(annotation_files)
+        # frames_per_annotation = num_frames // len(annotation_files)
+        frames_per_annotation = num_frames // total_initial_annotations
+        # frames_per_annotation = 4
 
         # Iterate over each frame in the video
         print(f"Processing {video_file}...")
@@ -732,7 +745,11 @@ def create_subfolders_with_annotations(videos_folder, annotations_folder, destin
             annotation_file = f"{video_name}_MP4-{annotated_frame_index}.txt"
             annotation_source = os.path.join(video_annotations_folder, annotation_file)
             annotation_destination = os.path.join(subfolder_path, f"{video_name}-{frame_index}.txt")
-            shutil.copy(annotation_source, annotation_destination)
+            if not os.path.exists(annotation_source):
+                # print(f"Annotation file {annotation_file} does not exist")
+                open(annotation_destination, 'a').close()
+            else: 
+                shutil.copy(annotation_source, annotation_destination)
 
 def get_num_frames(video_path):
     # Your existing code to get the number of frames in a video
@@ -746,7 +763,7 @@ def get_num_frames(video_path):
 
 def process_videos_to_frames(videos_folder, destination_folder):
     # Get the list of video files starting with "DJI_"
-    video_files = [file for file in os.listdir(videos_folder) if file.startswith("DJI_")]
+    video_files = [file for file in os.listdir(videos_folder) if (file.startswith("DJI_") or file.startswith("VIDEO-"))]
 
     # Iterate over each video file
     for video_file in video_files:
@@ -775,7 +792,7 @@ def process_videos_to_frames(videos_folder, destination_folder):
     
 def process_videos(videos_folder, annotations_folder, destination_folder):
     # Get the list of video files starting with "DJI_"
-    video_files = [file for file in os.listdir(videos_folder) if file.startswith("DJI_")]
+    video_files = [file for file in os.listdir(videos_folder) if (file.startswith("DJI_") or file.startswith("VIDEO-"))]
 
     # Iterate over each video file
     for video_file in video_files:
@@ -811,6 +828,10 @@ def process_videos(videos_folder, annotations_folder, destination_folder):
             # Get the annotation file for the current frame
             annotation_file = f"{video_name}-{frame_index}.txt"
             # annotation_file = f"{video_name}_MP4-{frame_index}.txt"
+            if annotation_file not in annotation_files:
+                print(f"Annotation file {annotation_file} does not exist")
+                frame_index += 1
+                continue
             annotation_file_path = os.path.join(annotation_folder_path, annotation_file)
 
             # Apply the function to draw bounding boxes on the frame
