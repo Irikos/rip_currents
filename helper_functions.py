@@ -729,20 +729,28 @@ def create_subfolders_with_annotations(videos_folder, annotations_folder, destin
 
         total_initial_annotations = max([int(file.split("-")[-1].split(".")[0]) for file in annotation_files])
         # Calculate the number of frames each annotation file should cover
-        # frames_per_annotation = num_frames // len(annotation_files)
-        frames_per_annotation = num_frames // total_initial_annotations
-        # frames_per_annotation = 4
+        frames_per_annotation = num_frames / float(total_initial_annotations)
+
+        # Use a variable to track the current frame count as a floating point
+        current_frame_coverage = frames_per_annotation
+        current_annotation_index = 0
 
         # Iterate over each frame in the video
         print(f"Processing {video_file}...")
         for frame_index in range(num_frames):
-            # Determine the annotation file index based on the current frame index
-            annotated_frame_index = frame_index // frames_per_annotation
+            # Update the annotation index based on the current_frame_coverage
+            if frame_index >= current_frame_coverage:
+                current_annotation_index += 1 
+                current_frame_coverage = (current_annotation_index + 1) * frames_per_annotation
+                # Ensure the annotation index does not exceed the number of available files
+                current_annotation_index = min(current_annotation_index, len(annotation_files) - 1)
 
-            # Ensure the annotation index does not exceed the number of available files
-            annotated_frame_index = min(annotated_frame_index, len(annotation_files) - 1)
-
-            annotation_file = f"{video_name}_MP4-{annotated_frame_index}.txt"
+            annotation_file = f"{video_name}_MP4-{current_annotation_index}.txt"
+            
+            # Ensure we increment the annotation index only when the coverage exceeds the threshold
+            if frame_index >= current_frame_coverage:
+                current_annotation_index += 1
+                
             annotation_source = os.path.join(video_annotations_folder, annotation_file)
             annotation_destination = os.path.join(subfolder_path, f"{video_name}-{frame_index}.txt")
             if not os.path.exists(annotation_source):
@@ -858,13 +866,12 @@ def move_files_by_prefix(folder_path):
     
     # Iterate over each file
     for file in files:
-        file = file.upper()  # Convert file name to uppercase
-        print(file)
+        file_name_without_extension, file_extension = os.path.splitext(file)
+        new_file_name = file_name_without_extension.upper() + file_extension
+        file = new_file_name  # Convert file name to uppercase
         if "_MP4" in file:
             # Get the prefix of the file
             prefix = file.split("_MP4")[0]
-            print(prefix)
-            print("\n")
             # Check if the prefix already exists in the dictionary
             if prefix in file_dict:
                 # If the prefix exists, append the file to the list of files with the same prefix
