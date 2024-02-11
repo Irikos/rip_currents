@@ -795,8 +795,6 @@ def process_videos_to_frames(videos_folder, destination_folder):
             frame_path = os.path.join(subfolder_path, f"{video_name}_{frame_index}.jpg")
             cv2.imwrite(frame_path, frames[frame_index])
 
-
-
     
 def process_videos(videos_folder, annotations_folder, destination_folder):
     # Get the list of video files starting with "DJI_"
