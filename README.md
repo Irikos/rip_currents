@@ -4,8 +4,7 @@ This repository contains our ongoing work on rip current detection and segmentat
 
 ## CVPR 2023 NTIRE Workshop
 
-Details, logs, datasets, and other resources related to our paper presented at the CVPR 2023 NTIRE Workshop, titled "Rip Current Segmentation: A Novel Benchmark and YOLOv8 Baseline Results", are located in the folder: [Rip Current Segmentation: A Novel Benchmark and YOLOv8 Baseline Results]([https://github.com/Irikos/rip_currents/tree/main/CVPR2023%20Rip%20Current%20Segmentation%3A%20A%20Novel%20Benchmark%20and%20YOLOv8%20Baseline%20Results]
-(https://github.com/Irikos/rip_currents/tree/main/CVPR2023%20Rip%20Current%20Segmentation%3A%20A%20Novel%20Benchmark%20and%20YOLOv8%20Baseline%20Results)).
+Details, logs, datasets, and other resources related to our paper presented at the CVPR 2023 NTIRE Workshop, titled "Rip Current Segmentation: A Novel Benchmark and YOLOv8 Baseline Results", are located in the folder: [Rip Current Segmentation: A Novel Benchmark and YOLOv8 Baseline Results](https://github.com/Irikos/rip_currents/tree/main/CVPR2023%20Rip%20Current%20Segmentation%3A%20A%20Novel%20Benchmark%20and%20YOLOv8%20Baseline%20Results).
 
 Please note that the content of this specific folder is frozen to preserve the information exactly as it was at the time of the paper's publication. However, you may find an updated version of this information in the main repository, reflecting our ongoing work and improvements in this area.
 
