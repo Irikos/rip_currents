@@ -42,7 +42,7 @@ Please note that the content of this specific folder is frozen to preserve the i
 **AIM 2025 Rip Current Segmentation (RipSeg) Challenge**
 <pre>
 @inproceedings{aim2025ripseg,
-    title={{AIM} 2025 Challenge on Rip Current Segmentation ({RipSeg})},
+    title={{AIM} 2025 Rip Current Segmentation ({RipSeg})} Challenge Report,
     author={Andrei Dumitriu and Florin Miron and Florin Tatui and Radu Tudor Ionescu and Radu Timofte and Aakash Ralhan and Florin-Alexandru Vasluianu and others},
     booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV) Workshops},
     year={2025}
